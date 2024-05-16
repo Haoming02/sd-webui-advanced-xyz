@@ -1,13 +1,12 @@
 from scripts.xyz_grid import fill_values_symbol
 from modules.ui_components import ToolButton
 from modules import scripts
-
 import gradio as gr
 
 xyz = None
 
 
-def get_options() -> list:
+def get_options(is_img2img: bool) -> list:
     """Grab all available Types for the X/Y/Z Plot from the built-in script"""
 
     global xyz
@@ -19,10 +18,16 @@ def get_options() -> list:
             ) and hasattr(data, "module"):
                 xyz = data.module
 
-    return xyz.axis_options
+    axis_options = xyz.axis_options
+
+    return [
+        x
+        for x in axis_options
+        if type(x) == xyz.AxisOption or x.is_img2img == is_img2img
+    ]
 
 
-def MainInputsXYZ(self) -> list[gr.component]:
+def MainInputsXYZ(self, is_img2img) -> list[gr.component]:
     """
     The main input components which include:
       1. Type Dropdown
@@ -40,8 +45,8 @@ def MainInputsXYZ(self) -> list[gr.component]:
                     components.append(
                         gr.Dropdown(
                             label=f"{Axis} type",
-                            choices=[opt.label for opt in get_options()],
-                            value=get_options()[0].label,
+                            choices=[opt.label for opt in get_options(is_img2img)],
+                            value=get_options(is_img2img)[0].label,
                             type="index",
                             elem_id=self.elem_id(f"{axis}_type"),
                         )
@@ -196,7 +201,7 @@ def SwapButtons(self) -> list[gr.component]:
     return components
 
 
-def SwapButtonsHook(btn, args: list):
+def SwapButtonsHook(btn, is_img2img, args: list):
     """Handle the logics of the Swap Buttons"""
 
     def swap(
@@ -208,10 +213,10 @@ def SwapButtonsHook(btn, args: list):
         axis2_dropdown,
     ):
         return (
-            get_options()[axis2_type].label,
+            get_options(is_img2img)[axis2_type].label,
             axis2_values,
             axis2_dropdown,
-            get_options()[axis1_type].label,
+            get_options(is_img2img)[axis1_type].label,
             axis1_values,
             axis1_dropdown,
         )
@@ -219,11 +224,11 @@ def SwapButtonsHook(btn, args: list):
     btn.click(swap, inputs=args, outputs=args)
 
 
-def FillButtonHook(btn, _type, _csv, _value, _dropdown, _delimiter):
+def FillButtonHook(btn, _type, _csv, _value, _dropdown, _delimiter, is_img2img):
     """Handle the logics of the Fill Buttons"""
 
     def fill(axis_type: int, csv_mode: bool, delimiter: str):
-        choices: function = get_options()[axis_type].choices
+        choices: function = get_options(is_img2img)[axis_type].choices
 
         if choices is not None:
             if csv_mode:
@@ -251,6 +256,7 @@ def TypeModeHooks(
     z_values_dropdown,
     fill_z_button,
     delimiter,
+    is_img2img,
 ):
     """
     Handle the logics when:
@@ -261,7 +267,7 @@ def TypeModeHooks(
     def select_axis(axis_type, axis_values, axis_values_dropdown, _delimiter, mode):
         axis_type = 0 if axis_type is None else axis_type
 
-        choices: function = get_options()[axis_type].choices
+        choices: function = get_options(is_img2img)[axis_type].choices
         has_choices: bool = choices is not None
 
         if has_choices:
@@ -354,20 +360,20 @@ def TypeModeHooks(
     )
 
 
-def ClearHook(clear_btn, args: list):
+def ClearHook(clear_btn, is_img2img, args: list):
     """Handle the logics of the Clear Button"""
 
     def onClear():
         return (
-            gr.Dropdown.update(value=get_options()[0].label),
+            gr.Dropdown.update(value=get_options(is_img2img)[0].label),
             gr.Textbox.update(value=""),
             gr.Dropdown.update(value=[]),
             gr.Button.update(visible=False),
-            gr.Dropdown.update(value=get_options()[0].label),
+            gr.Dropdown.update(value=get_options(is_img2img)[0].label),
             gr.Textbox.update(value=""),
             gr.Dropdown.update(value=[]),
             gr.Button.update(visible=False),
-            gr.Dropdown.update(value=get_options()[0].label),
+            gr.Dropdown.update(value=get_options(is_img2img)[0].label),
             gr.Textbox.update(value=""),
             gr.Dropdown.update(value=[]),
             gr.Button.update(visible=False),

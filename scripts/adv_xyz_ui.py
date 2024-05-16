@@ -34,10 +34,14 @@ import random
 
 class AdvScript(scripts.Script):
 
+    def __init__(self):
+        self.is_i2i: bool = None
+
     def title(self):
         return "Adv. X/Y/Z Plot"
 
     def ui(self, is_img2img):
+        self.is_i2i = is_img2img
 
         (
             x_type,
@@ -52,7 +56,7 @@ class AdvScript(scripts.Script):
             z_values,
             z_values_dropdown,
             fill_z_button,
-        ) = MainInputsXYZ(self)
+        ) = MainInputsXYZ(self, is_img2img)
 
         (
             draw_legend,
@@ -72,16 +76,19 @@ class AdvScript(scripts.Script):
 
         SwapButtonsHook(
             swap_xy_btn,
+            is_img2img,
             [x_type, x_values, x_values_dropdown, y_type, y_values, y_values_dropdown],
         )
 
         SwapButtonsHook(
             swap_yz_btn,
+            is_img2img,
             [y_type, y_values, y_values_dropdown, z_type, z_values, z_values_dropdown],
         )
 
         SwapButtonsHook(
             swap_xz_btn,
+            is_img2img,
             [x_type, x_values, x_values_dropdown, z_type, z_values, z_values_dropdown],
         )
 
@@ -92,6 +99,7 @@ class AdvScript(scripts.Script):
             x_values,
             x_values_dropdown,
             delimiter,
+            is_img2img,
         )
 
         FillButtonHook(
@@ -101,6 +109,7 @@ class AdvScript(scripts.Script):
             y_values,
             y_values_dropdown,
             delimiter,
+            is_img2img,
         )
 
         FillButtonHook(
@@ -110,6 +119,7 @@ class AdvScript(scripts.Script):
             z_values,
             x_values_dropdown,
             delimiter,
+            is_img2img,
         )
 
         TypeModeHooks(
@@ -127,10 +137,12 @@ class AdvScript(scripts.Script):
             z_values_dropdown,
             fill_z_button,
             delimiter,
+            is_img2img,
         )
 
         ClearHook(
             clear_btn,
+            is_img2img,
             [
                 x_type,
                 x_values,
@@ -203,7 +215,7 @@ class AdvScript(scripts.Script):
             print("\n\n[Error] Row Count only supports X Axis...\n\n")
             x_type = y_type = z_type = 0
 
-        current_axis_options = get_options()
+        current_axis_options = get_options(self.is_i2i)
 
         delimiter = delimiter.strip()
         if not delimiter:
