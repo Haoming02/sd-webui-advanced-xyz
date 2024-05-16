@@ -2,8 +2,12 @@ from scripts.xyz_grid import fill_values_symbol
 from modules.ui_components import ToolButton
 from modules import scripts
 import gradio as gr
+import json
+import os
 
 xyz = None
+config = None
+config_path = os.path.join(scripts.basedir(), "config.json")
 
 
 def get_options(is_img2img: bool) -> list:
@@ -20,10 +24,23 @@ def get_options(is_img2img: bool) -> list:
 
     axis_options = xyz.axis_options
 
+    global config
+    if config is None:
+
+        if not os.path.exists(config_path):
+            config = {"show": [x.label for x in axis_options], "hide": []}
+            with open(config_path, "w+", encoding="utf-8") as f:
+                json.dump(config, f)
+
+        else:
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = json.load(f)
+
     return [
         x
         for x in axis_options
-        if type(x) == xyz.AxisOption or x.is_img2img == is_img2img
+        if (type(x) == xyz.AxisOption or x.is_img2img == is_img2img)
+        and (x.label not in config["hide"])
     ]
 
 

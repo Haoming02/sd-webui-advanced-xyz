@@ -17,14 +17,12 @@ Tried to compare something, but the grid is too wide? Now you can break up the g
 #### Clear Button
 Quickly clears out the fields with just one click!
 
+#### Display Configs
+After the Webui is launched for the first time with this Extension installed, it will generate a `config.json` file in the folder, with all currently available `Types` listed. You can edit this file, and move labels to the **"hide"** array to stop them from showing up in the dropdown. Require closing and restarting the Webui after you edit the file.
+
 ### Showcase
 
 <p align="center">
-<img src="example/ui.png" width=384><br>
-<code>New UI</code>
-</p>
-
-<p align="center">
-<img src="example/sample.jpg" width=384><br>
-<code>Results</code>
+<img src="example/ui.png" height=256> <img src="example/sample.jpg" height=256> <br>
+<code>New UI</code> <code>Results</code>
 </p>
